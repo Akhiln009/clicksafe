@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ClickSafe | Cyber Defense Encyclopedia</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Outfit:wght@400;700;900&family=Dancing+Script:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Outfit"', 'sans-serif'],
+                        signature: ['"Dancing Script"', 'cursive'],
+                    },
+                    animation: {
+                        'aurora': 'aurora 25s linear infinite',
+                        'pulse-glow': 'pulseGlow 3s infinite',
+                    },
+                    keyframes: {
+                        aurora: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
+                        pulseGlow: { '0%, 100%': { boxShadow: '0 0 10px rgba(59, 130, 246, 0.2)' }, '50%': { boxShadow: '0 0 25px rgba(59, 130, 246, 0.6)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* === THEME 1: CYBER (DARK) === */
+        .dark body { background-color: #020617; color: #e2e8f0; }
+        .dark .aurora-mesh {
+            background: linear-gradient(125deg, #020617, #0f172a, #1e1b4b, #020617);
+            background-size: 400% 400%;
+            animation: aurora 15s ease infinite;
+        }
+        .dark .glass-panel {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+        .dark .topic-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+        }
+        .dark .topic-btn:hover { background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; }
+        .dark .info-box { background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; color: #e2e8f0; }
+        .dark .warning-box { background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; color: #fecaca; }
+
+        /* === THEME 2: EASY VIEW (LIGHT) === */
+        html:not(.dark) body { background-color: #ffffff; color: #0f172a; font-family: 'Inter', sans-serif; }
+        html:not(.dark) .aurora-mesh { background: #f8fafc; }
+        html:not(.dark) .glass-panel {
+            background: #ffffff;
+            border: 3px solid #000000;
+            box-shadow: 6px 6px 0px #000000;
+            color: #000000;
+        }
+        html:not(.dark) .topic-btn {
+            background: #ffffff; border: 2px solid #e5e7eb; color: #000000; font-weight: 700;
+        }
+        html:not(.dark) .topic-btn:hover { background: #e0f2fe; border-color: #0284c7; transform: translateX(4px); }
+        html:not(.dark) h1, html:not(.dark) h2, html:not(.dark) h3 { color: #000 !important; }
+        html:not(.dark) p, html:not(.dark) span, html:not(.dark) li { color: #334155 !important; }
+        
+        html:not(.dark) .info-box { background: #eff6ff; border-left: 4px solid #3b82f6; color: #1e3a8a; }
+        html:not(.dark) .warning-box { background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; }
+
+        /* SHARED UTILS */
+        .topic-btn { transition: all 0.2s; cursor: pointer; }
+        .completed { border-left: 6px solid #22c55e !important; }
+        .dark .completed { background: rgba(20, 83, 45, 0.3) !important; }
+        html:not(.dark) .completed { background: #dcfce7 !important; border-color: #16a34a !important; }
+        .check-icon { display: none; }
+        .completed .check-icon { display: block; }
+
+        /* INTERACTIVE TOOLS */
+        .tool-box { border-left: 4px solid #3b82f6; padding: 1.5rem; margin: 1.5rem 0; background: rgba(59, 130, 246, 0.1); border-radius: 0.5rem; }
+        html:not(.dark) .tool-box { background: #eff6ff; border-color: #1e40af; }
+        .strength-bar { transition: width 0.5s ease, background-color 0.5s ease; }
+        
+        #lessonModal { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
+        html:not(.dark) #lessonModal { background: rgba(255,255,255,0.95); }
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #64748b; border-radius: 4px; }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen transition-colors duration-300">
+
+    <button onclick="Engine.ui.toggleMode()" class="fixed bottom-6 right-6 z-[9999] bg-white dark:bg-slate-800 text-slate-900 dark:text-yellow-400 px-6 py-4 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.2)] border-4 border-blue-600 font-bold text-lg flex items-center gap-3 hover:scale-105 transition-transform">
+        <i id="mode-icon" class="fa-solid fa-sun text-2xl"></i>
+        <span id="mode-text">Switch to Easy View</span>
+    </button>
+
+    <div class="bg-red-600 text-white font-bold uppercase tracking-widest text-center py-3 relative z-[60] cursor-pointer hover:bg-red-700" onclick="Engine.logic.openLesson('report-a-fraud')">
+        <i class="fa-solid fa-triangle-exclamation mr-2"></i> Victim of Fraud? Click Here Immediately
+    </div>
+
+    <div class="sticky top-0 z-50 px-4 py-4">
+        <nav class="mx-auto max-w-6xl glass-panel rounded-full px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl shadow-lg">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <span class="font-display font-black text-xl tracking-tight block leading-none dark:text-white text-slate-900">ClickSafe</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">AFPC Edition</span>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-4">
+                <span class="text-xs font-bold text-slate-500 uppercase">Progress</span>
+                <div class="w-32 h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden border border-slate-300 dark:border-slate-600">
+                    <div id="nav-bar" class="h-full bg-blue-600 w-0 transition-all duration-700"></div>
+                </div>
+                <span class="font-bold text-blue-600 dark:text-blue-400" id="nav-pct">0%</span>
+            </div>
+            <button onclick="Engine.logic.openQuiz()" class="bg-slate-900 dark:bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:scale-105 transition shadow-lg">
+                Final Exam
+            </button>
+        </nav>
+    </div>
+
+    <header class="aurora-mesh relative z-10 py-16 px-6">
+        <div class="max-w-5xl mx-auto text-center">
+            <div class="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest mb-6 border border-blue-200 dark:border-blue-500/30">
+                Full Educational Suite
+            </div>
+            <h1 class="font-display text-7xl md:text-8xl font-black text-slate-900 dark:text-white mb-6 leading-[0.9] tracking-tighter">
+                CYBER <br> 
+                <span class="text-blue-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-blue-400 dark:to-purple-400">DEFENSE.</span>
+            </h1>
+            <p class="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                The comprehensive guide to digital survival. Featuring interactive tools, simulations, and expert recovery protocols.
+            </p>
+            <button onclick="document.getElementById('curriculum').scrollIntoView()" class="bg-blue-600 text-white px-10 py-4 rounded-xl font-bold text-xl shadow-xl hover:bg-blue-700 transition transform hover:-translate-y-1">
+                Access Modules
+            </button>
+        </div>
+    </header>
+
+    <main id="curriculum" class="flex-grow py-16 px-6 max-w-7xl mx-auto w-full relative z-10">
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <div class="glass-panel p-4 rounded-[2rem] flex flex-col h-auto min-h-[600px]" data-aos="fade-up">
+                <div class="bg-rose-50 dark:bg-rose-900/20 rounded-[1.5rem] p-6 mb-4 border-b border-rose-100 dark:border-rose-900/50">
+                    <span class="text-rose-600 dark:text-rose-300 text-xs font-black uppercase tracking-widest">Unit 01</span>
+                    <h2 class="font-display text-3xl font-black text-slate-900 dark:text-white mt-1">Threat Intel</h2>
+                    <p class="text-slate-600 dark:text-slate-400 mt-1 font-bold">Identity Fraud Tactics</p>
+                </div>
+                <div class="flex-grow space-y-3" id="unit1-container"></div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-[2rem] flex flex-col h-auto min-h-[600px]" data-aos="fade-up" data-aos-delay="100">
+                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-[1.5rem] p-6 mb-4 border-b border-blue-100 dark:border-blue-900/50">
+                    <span class="text-blue-600 dark:text-blue-300 text-xs font-black uppercase tracking-widest">Unit 02</span>
+                    <h2 class="font-display text-3xl font-black text-slate-900 dark:text-white mt-1">Defense Ops</h2>
+                    <p class="text-slate-600 dark:text-slate-400 mt-1 font-bold">Passwords & Security</p>
+                </div>
+                <div class="flex-grow space-y-3" id="unit2-container"></div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-[2rem] flex flex-col h-auto min-h-[600px]" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-[1.5rem] p-6 mb-4 border-b border-emerald-100 dark:border-emerald-900/50">
+                    <span class="text-emerald-600 dark:text-emerald-300 text-xs font-black uppercase tracking-widest">Unit 03</span>
+                    <h2 class="font-display text-3xl font-black text-slate-900 dark:text-white mt-1">Recovery</h2>
+                    <p class="text-slate-600 dark:text-slate-400 mt-1 font-bold">Damage Control Protocols</p>
+                </div>
+                <div class="flex-grow space-y-3" id="unit3-container"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="lessonModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="modal-box bg-white dark:bg-slate-900 w-full max-w-4xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] border-2 border-slate-200 dark:border-slate-700">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-between items-start">
+                <div>
+                    <h2 id="modal-title" class="font-display text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-1"></h2>
+                    <p class="text-slate-500 dark:text-slate-400 font-bold text-sm uppercase"><i class="fa-regular fa-clock"></i> <span id="modal-time"></span> Read</p>
+                </div>
+                <button onclick="Engine.ui.closeModal()" class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-red-500 hover:text-white transition flex items-center justify-center text-xl text-slate-600 dark:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div id="modal-content" class="p-8 overflow-y-auto custom-scroll space-y-6 text-lg leading-relaxed text-slate-800 dark:text-slate-200">
+                </div>
+
+            <div class="p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex justify-between items-center">
+                <span class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest hidden md:block">Scroll to view all content</span>
+                <button onclick="Engine.logic.complete()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg transition flex items-center gap-2 transform active:scale-95">
+                    Complete Lesson <i class="fa-solid fa-check-circle"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="certOverlay" class="fixed inset-0 z-[110] hidden items-center justify-center p-4 bg-black/90">
+        <div class="bg-white max-w-5xl w-full p-2 border-[10px] border-slate-300 shadow-2xl relative">
+            <div class="border-4 border-slate-800 p-12 text-center bg-white">
+                <i class="fa-solid fa-award text-6xl text-blue-600 mb-6 block"></i>
+                <h1 class="font-display text-5xl font-black text-slate-900 mb-2 uppercase">Cyber Defense Certified</h1>
+                <p class="text-slate-500 italic text-xl mb-4">Awarded to</p>
+                <input type="text" id="cert-name" placeholder="Type Your Name" class="font-signature text-6xl text-blue-600 text-center w-full border-b-2 border-slate-200 focus:outline-none placeholder-slate-300 mb-8 pb-2">
+                <p class="text-slate-700 text-lg max-w-2xl mx-auto mb-12 font-bold">
+                    For mastering the protocols of Digital Fraud Prevention, Asset Security, and Identity Recovery.
+                </p>
+                <div class="flex justify-between px-8">
+                    <div class="text-left"><div class="font-bold border-t-2 border-slate-400 pt-2 text-slate-900">ClickSafe Director</div></div>
+                    <div class="text-right"><div class="font-bold border-t-2 border-slate-400 pt-2 text-slate-900" id="cert-date"></div></div>
+                </div>
+            </div>
+            <div class="absolute -bottom-20 w-full flex justify-center gap-4">
+                <button onclick="window.print()" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:scale-105 transition">Print PDF</button>
+                <button onclick="document.getElementById('certOverlay').style.display='none'" class="bg-white text-slate-900 px-8 py-3 rounded-full font-bold border border-slate-300 hover:bg-slate-100 transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const Engine = {
+            db: {
+                // --- UNIT 1: THREAT INTEL ---
+                'credit-card-frauds': { 
+                    unit: 1, title: 'Credit Card Fraud', time: '5m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Credit Card Fraud</h3>
+                    <p>Credit card fraud is a serious crime that can have a devastating impact on your finances. In 2022, there were over $50 billion in credit card fraud losses in the United States alone. This course will teach you how to protect yourself from credit card fraud and what to do if you become a victim.</p>
+                    
+                    <div class="tool-box my-6">
+                        <h4 class="font-bold text-xl mb-3 dark:text-white"><i class="fa-solid fa-hand"></i> Tips to protect yourself</h4>
+                        <ul class="list-disc pl-5 space-y-2 dark:text-slate-300">
+                            <li><strong>Be careful where you swipe:</strong> Try not to use card readers at gas stations or don't use ATMs that is not well-lit or in well-trafficked areas.</li>
+                            <li><strong>Check statements regularly:</strong> If you see any charges that you don't recognize, report them to your credit card company immediately.</li>
+                            <li><strong>Don't click links:</strong> In emails or text messages from senders you don't know. Instead, go directly to the website.</li>
+                            <li><strong>Never give out personal info:</strong> Ask the caller for their name and company affiliation, and then hang up and call the company directly.</li>
+                            <li><strong>Shred documents:</strong> Before throwing them away. This includes credit card statements and bills.</li>
+                            <li><strong>Place a security freeze:</strong> This prevents anyone from accessing your credit report. Contact Equifax, Experian, and TransUnion.</li>
+                            <li><strong>Use strong passwords:</strong> Don't use the same password for multiple accounts.</li>
+                            <li><strong>Social media caution:</strong> Scammers can use information you share on social media to target you.</li>
+                        </ul>
+                    </div>
+                    ` 
+                },
+                'bank-account-frauds': { 
+                    unit: 1, title: 'Bank Account Frauds', time: '6m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Bank Account Frauds</h3>
+                    <p>Bank account fraud refers to deceptive practices aimed at stealing your money or accessing your sensitive information. These scams often involve trickery, manipulation, or hacking.</p>
+                    
+                    <div class="bg-slate-200 dark:bg-slate-800 p-6 rounded-xl my-6 border-l-4 border-blue-500">
+                        <h4 class="font-bold text-lg mb-3 dark:text-white">Common Types of Bank Account Frauds:</h4>
+                        <ul class="list-disc pl-5 space-y-2 dark:text-slate-300">
+                            <li><strong>New Account Fraud:</strong> Scammers open fake accounts using stolen identities.</li>
+                            <li><strong>Phishing & Malware:</strong> Fake emails/texts/websites or malware to steal identity.</li>
+                            <li><strong>ATM Skimming:</strong> Devices capture card/PIN at ATM.</li>
+                            <li><strong>Account Takeover:</strong> Hackers change your login details.</li>
+                            <li><strong>Overpayment Scams:</strong> Counterfeit check for higher amount, ask for excess back.</li>
+                            <li><strong>Check Fraud:</strong> Altering/forging/counterfeiting checks.</li>
+                            <li><strong>Unauthorized Transactions:</strong> Withdrawals/purchases/transfers without knowledge.</li>
+                        </ul>
+                    </div>
+                    ` 
+                },
+                'tax-fraud': { 
+                    unit: 1, title: 'Tax Fraud', time: '5m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Tax Fraud</h3>
+                    <p>Tax Fraud is the misrepresentation of data related to your taxes to earn an unfair benefit. This can affect underpaying your taxes or simply making a mistake on your tax return.</p>
+                    
+                    <div class="tool-box my-6">
+                        <h4 class="font-bold text-xl mb-2 dark:text-white">Fundamental Elements of Tax Fraud</h4>
+                        <ul class="list-disc pl-5 space-y-2 dark:text-slate-300">
+                            <li><strong>Misrepresentation:</strong> Lying about income, deductions, or credits.</li>
+                            <li><strong>Underreporting Income:</strong> Not reporting all wages or business earnings.</li>
+                            <li><strong>Claiming False Deductions:</strong> Falsely claiming credits or disallowed expenses.</li>
+                            <li><strong>Filing False Tax Returns:</strong> Using incorrect info or someone else's SSN.</li>
+                            <li><strong>Tax Evasion:</strong> Hiding income or assets from the government (most serious).</li>
+                        </ul>
+                    </div>
+                    ` 
+                },
+                'phising': { 
+                    unit: 1, title: 'Phishing', time: '8m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Phishing</h3>
+                    <p>Phishing is a deceptive attempt to steal your personal information, such as passwords, credit card details, and other private data. Phishers often trick you into clicking on malicious links or downloading infected attachments.</p>
+                    
+                    <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl my-6">
+                        <h4 class="font-bold text-lg mb-3 dark:text-white">Common Tactics:</h4>
+                        <ul class="list-disc pl-5 space-y-2 dark:text-slate-300">
+                            <li>Taking you into fake websites that look like the actual company's.</li>
+                            <li>Tricking you into downloading malware.</li>
+                            <li>Asking you directly for Credit card and login information.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tool-box my-6">
+                        <h4 class="font-bold text-xl mb-2 dark:text-white">Tips to protect yourself</h4>
+                        <ul class="list-disc pl-5 space-y-2 dark:text-slate-300">
+                            <li>Be cautious of what you open.</li>
+                            <li>Hover over links before you click on them to verify the URL.</li>
+                            <li>Make sure you keep your software up to date.</li>
+                            <li>Never give out personal information to people you don't know.</li>
+                            <li>Report Phishing attempts to the real company.</li>
+                        </ul>
+                    </div>
+                    ` 
+                },
+                'romance-scams': { 
+                    unit: 1, title: 'Romance Scams', time: '7m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Romance Scams</h3>
+                    <p>Romance scams are deceptive schemes where scammers pretend to develop romantic feelings for their victims to manipulate them into sending money or sharing personal information.</p>
+                    
+                    <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl my-6">
+                        <h4 class="font-bold text-lg mb-3 dark:text-white">How it works:</h4>
+                        <ul class="list-disc pl-5 space-y-2 dark:text-slate-300">
+                            <li><strong>Online Encounter:</strong> Contact via dating apps/social media.</li>
+                            <li><strong>Rapid Bonding:</strong> Quickly build trust and "fall in love".</li>
+                            <li><strong>Too Good to Be True:</strong> Idealized persona (successful, attractive).</li>
+                            <li><strong>Sob Stories:</strong> Fabricated crisis (medical emergency, travel expenses).</li>
+                            <li><strong>Request for Money:</strong> Ask for financial assistance, promising repayment.</li>
+                        </ul>
+                    </div>
+                    <p class="font-bold text-red-600 dark:text-red-400">Protection Tips: Be cautious online, don't share personal info, and research suspicious profiles.</p>
+                    ` 
+                },
+                'imposter-scams': { 
+                    unit: 1, title: 'Imposter Scams', time: '6m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Imposter Scams</h3>
+                    <p>Imposter Scams involve deceptive tactics used by scammers to obtain personal information by pretending to be a trusted entity.</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 my-6">
+                        <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700">
+                            <h4 class="font-bold dark:text-white">Government Imposter</h4>
+                            <p class="text-sm mt-2">Pretend to be IRS/Social Security. Threaten arrest/fines. Demand immediate payment.</p>
+                        </div>
+                        <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700">
+                            <h4 class="font-bold dark:text-white">Tech Support</h4>
+                            <p class="text-sm mt-2">Claim to be Microsoft/Apple. Say computer has virus. Demand payment for repairs.</p>
+                        </div>
+                        <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700">
+                            <h4 class="font-bold dark:text-white">Utility Company</h4>
+                            <p class="text-sm mt-2">Threaten to disconnect service unless paid immediately.</p>
+                        </div>
+                        <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700">
+                            <h4 class="font-bold dark:text-white">Phishing Email</h4>
+                            <p class="text-sm mt-2">Fake bank email asking to verify info via link.</p>
+                        </div>
+                    </div>
+                    <div class="warning-box p-4 rounded-xl">
+                        <h4 class="font-bold">Red Flags:</h4>
+                        <ul class="list-disc pl-5 mt-2 text-sm">
+                            <li>Threats and urgency.</li>
+                            <li>Unexpected contact.</li>
+                            <li>Requests for payment by gift cards/wire transfers.</li>
+                        </ul>
+                    </div>
+                    ` 
+                },
+                'phone-call-ads': { 
+                    unit: 1, title: 'Phone Call Ads', time: '4m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Phone Call Ads & Scams</h3>
+                    <p>Phone call ads allow businesses to talk directly with potential customers. However, scammers often pose as legitimate businesses to manipulate victims.</p>
+                    <p class="mt-4"><strong>Impact:</strong> Victims can suffer significant financial losses and emotional distress.</p>
+                    <p class="mt-2"><strong>Prevention:</strong> Educating the public about common phone call scams and how to recognize them is key.</p>
+                    
+                    <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-xl my-4 text-center">
+                        <a href="https://view.genially.com/66704df03921f5001578b651/interactive-content-pre-quiz" target="_blank" class="font-bold text-blue-700 dark:text-blue-300 hover:underline">
+                            <i class="fa-solid fa-gamepad"></i> Play Fill-in-the-Blanks Game (Genially)
+                        </a>
+                        <p class="text-xs mt-1 text-slate-500">Note: External link will open.</p>
+                    </div>
+                    ` 
+                },
+                'financial-identity-theft': { 
+                    unit: 1, title: 'Financial Identity Theft', time: '9m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Financial Identity Theft</h3>
+                    <p>This happens when someone steals your personal information (SSN, bank details) to open new accounts, make unauthorized purchases, or steal money.</p>
+                    
+                    <div class="tool-box my-6">
+                        <h4 class="font-bold text-xl mb-2 dark:text-white">What to do if victimized:</h4>
+                        <ol class="list-decimal pl-5 space-y-2 dark:text-slate-300">
+                            <li><strong>Stay Calm:</strong> The key to success is to STAY CALM.</li>
+                            <li><strong>Place a Fraud Alert:</strong> On your credit reports and review them carefully.</li>
+                            <li><strong>File a Police Report:</strong> Keep copies of everything.</li>
+                            <li><strong>Contact Financial Institutions:</strong> Report the fraud.</li>
+                            <li><strong>Change Passwords:</strong> For all online accounts.</li>
+                            <li><strong>Credit Freeze:</strong> Consider setting one up.</li>
+                        </ol>
+                    </div>
+                    ` 
+                },
+                
+                // --- UNIT 2: DEFENSE OPS ---
+                'creating-strong-passwords': { 
+                    unit: 2, title: 'Creating Strong Passwords', time: '4m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">5 Rules for Strong Passwords</h3>
+                    
+                    <ol class="list-decimal pl-5 space-y-3 dark:text-slate-300">
+                        <li><strong>Go Long:</strong> Use at least 12-14 characters. Longer is harder to crack.</li>
+                        <li><strong>Mix It Up:</strong> Use Uppercase (A), Lowercase (a), Numbers (1), and Symbols (!).</li>
+                        <li><strong>Avoid the Obvious:</strong> No names, birthdates, or "password123".</li>
+                        <li><strong>Keep It Unique:</strong> Never reuse passwords across accounts.</li>
+                        <li><strong>Use a Password Manager:</strong> It creates and stores complex passwords for you.</li>
+                    </ol>
+
+                    <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl my-6 border border-slate-300 dark:border-slate-700">
+                        <label class="font-bold dark:text-white">Test Password Strength (Not Saved):</label>
+                        <input type="text" placeholder="Type here..." oninput="Engine.logic.checkPass(this.value)" class="w-full p-4 rounded-lg bg-white dark:bg-black border border-slate-300 dark:border-slate-600 text-xl font-mono mt-2 text-black dark:text-white">
+                        <div class="w-full h-3 bg-slate-300 dark:bg-slate-700 rounded-full mt-4 overflow-hidden">
+                            <div id="pass-bar" class="strength-bar bg-red-500"></div>
+                        </div>
+                        <p id="pass-text" class="text-sm font-bold mt-2 text-slate-500">Result: Weak</p>
+                    </div>
+                    ` 
+                },
+                'safely-share-personal-info': { 
+                    unit: 2, title: 'Safely Share Info', time: '5m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Sharing requires caution</h3>
+                    <div class="info-box p-4 rounded-xl my-4">
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>Think before you share:</strong> Ask yourself if it is necessary. If under 16, ask a guardian.</li>
+                            <li><strong>Categorize Information:</strong> Know that social media is less risky than bank account numbers, but still dangerous for identity theft.</li>
+                            <li><strong>Know the person:</strong> Ensure you know exactly who you are talking to before sharing anything.</li>
+                        </ul>
+                    </div>
+                    ` 
+                },
+                'monitor-your-credit-report': { 
+                    unit: 2, title: 'Monitor Credit Report', time: '10m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Free Methods</h3>
+                    <ul class="list-disc pl-5 space-y-2 dark:text-slate-300">
+                        <li><strong>AnnualCreditReport.com:</strong> The official government site. Get 1 free report from each bureau every 12 months.</li>
+                        <li><strong>Stagger Strategy:</strong> Request one report every 4 months (e.g., Equifax in Jan, Experian in May, TransUnion in Sept) to monitor all year round.</li>
+                        <li><strong>Bank Perks:</strong> Many credit card apps offer free credit score tracking.</li>
+                    </ul>
+                    <h3 class="text-xl font-bold mt-6 mb-2 dark:text-white">Paid Options</h3>
+                    <p>Credit monitoring services offer real-time alerts and identity theft insurance for a monthly fee.</p>
+                    ` 
+                },
+                'u2-4': { 
+                    unit: 2, title: 'Travel Safety', time: '6m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Protect Identity While Traveling</h3>
+                    <ul class="list-disc pl-5 space-y-3 dark:text-slate-300">
+                        <li><strong>Minimize what you carry:</strong> Take out SSN cards, extra credit cards, and checkbooks. Leave them in a safe deposit box.</li>
+                        <li><strong>Strategic packing:</strong> Carry only daily essentials (ID, 1 card, cash). Keep passport in hotel safe.</li>
+                        <li><strong>Secure Electronics:</strong> Use strong PINs. Avoid public Wi-Fi for banking; use a VPN if necessary.</li>
+                        <li><strong>Surroundings:</strong> Be alert for pickpockets in crowded tourist areas.</li>
+                    </ul>
+                    ` 
+                },
+                'u2-5': { 
+                    unit: 2, title: 'Workplace Protection', time: '5m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Identity Protection at Work</h3>
+                    <div class="tool-box my-4">
+                        <h4 class="font-bold dark:text-white mb-2">Essential Tips:</h4>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>Limit Shared Info:</strong> Don't share SSN or home address unnecessarily.</li>
+                            <li><strong>Lock Workstation:</strong> Always lock computer (Win+L) when stepping away.</li>
+                            <li><strong>Shred Documents:</strong> Never throw sensitive papers in the trash bin intact.</li>
+                            <li><strong>Report Suspicious Activity:</strong> Tell IT immediately if you see strange computer behavior.</li>
+                        </ul>
+                    </div>
+                    <p><strong>Pro Tip:</strong> Use separate devices for personal and work tasks to minimize risk overlap.</p>
+                    ` 
+                },
+
+                // --- UNIT 3: RECOVERY OPS ---
+                'report-a-fraud': { 
+                    unit: 3, title: 'Report Fraudulent Activity', time: 'Urgent', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">How to Report a Scam</h3>
+                    <p>Reporting fraud is essential for protecting yourself and others. Here is the official process:</p>
+                    
+                    <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl my-6 border border-slate-300 dark:border-slate-700">
+                        <h4 class="font-bold text-lg mb-3 dark:text-white">Step-by-Step Guide:</h4>
+                        <ol class="list-decimal pl-5 space-y-4 dark:text-slate-300">
+                            <li><strong>Provide Basic Info:</strong> Your name, email, phone number, and address (optional).</li>
+                            <li><strong>Describe the Incident:</strong> What happened? When? Where? Who was involved? Be concise.</li>
+                            <li><strong>Provide Evidence:</strong> Upload screenshots, emails, or receipts. Provide links if applicable.</li>
+                            <li><strong>Submit the Report:</strong> Visit <a href="https://identitytheft.gov" target="_blank" class="text-blue-500 underline">IdentityTheft.gov</a> to file officially.</li>
+                        </ol>
+                    </div>
+                    ` 
+                },
+                'taking-action-in-your-credit-report': { 
+                    unit: 3, title: 'Taking Action on Credit Report', time: '5m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Resolving Issues</h3>
+                    <p>Maintaining good credit health requires vigilance. Follow these steps:</p>
+                    
+                    <ul class="list-disc pl-5 space-y-3 mt-4 dark:text-slate-300">
+                        <li><strong>Step 1: Review:</strong> Check for accounts that don't belong to you, incorrect balances, or unauthorized inquiries.</li>
+                        <li><strong>Step 2: Check for Errors:</strong> If you find them, gather evidence (statements). Contact the Credit Bureau to file a dispute online or by mail. They have 30 days to respond.</li>
+                        <li><strong>Step 3: Follow Up:</strong> Check if the disputed info was corrected. Add a consumer statement if needed.</li>
+                        <li><strong>Step 4: Address Negatives:</strong> Pay down debt and settle collections ("pay-for-delete").</li>
+                        <li><strong>Step 5: Prevent Future Issues:</strong> Monitor credit regularly and avoid co-signing loans.</li>
+                    </ul>
+                    ` 
+                },
+                'dispute-fraudulent-charges-on-your-credit-report': { 
+                    unit: 3, title: 'Dispute Fraudulent Charges', time: '5m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">5-Step Dispute Process</h3>
+                    
+                    <div class="tool-box my-6">
+                        <ol class="list-decimal pl-5 space-y-4">
+                            <li><strong>Gather Evidence:</strong> Get your credit report, Identity Theft Report, Police Report, and proof of identity.</li>
+                            <li><strong>Contact Credit Bureaus:</strong> Write a dispute letter highlighting the error. Send via <strong>Certified Mail</strong> with return receipt.</li>
+                            <li><strong>Contact the Creditor:</strong> Inform the company associated with the charge that it is fraudulent. Document all calls.</li>
+                            <li><strong>Follow Up:</strong> Bureaus investigate within 30-45 days. Review their results.</li>
+                            <li><strong>Consider Fraud Alert:</strong> Place a 1-year fraud alert or a 7-year extended alert on your file.</li>
+                        </ol>
+                    </div>
+                    <p class="font-bold text-slate-500">Important: Do not pay fraudulent charges while they are being disputed.</p>
+                    ` 
+                },
+                'getting-a-new-social-security-number': { 
+                    unit: 3, title: 'Get a New SSN', time: '8m', 
+                    body: `
+                    <h3 class="text-2xl font-bold mb-4 dark:text-white">Social Security Number Guide</h3>
+                    <p>An SSN is a unique 9-digit code for tracking earnings. It is critical for jobs and banking.</p>
+                    
+                    <h4 class="text-xl font-bold mt-6 mb-2 dark:text-white">Two Common Scenarios:</h4>
+                    <ul class="list-disc pl-5 space-y-3 dark:text-slate-300">
+                        <li><strong>Applying for the 1st Time:</strong> Usually done for newborns at the hospital (with birth certificate) or new immigrants with valid work authorization.</li>
+                        <li><strong>Replacing a Lost Card:</strong> You can apply for a replacement card. It will have the <strong>same exact number</strong>. A completely <em>new</em> number is only issued in extreme cases of harassment/abuse.</li>
+                    </ul>
+                    ` 
+                }
+            },
+
+            state: { progress: [] },
+            currentId: null,
+
+            ui: {
+                init: function() {
+                    AOS.init();
+                    Engine.logic.loadState();
+                    this.renderButtons();
+                    this.checkTheme();
+                },
+
+                checkTheme: function() {
+                    if(localStorage.getItem('cs_mode') === 'light') {
+                        document.documentElement.classList.remove('dark');
+                        document.getElementById('mode-text').innerText = 'Switch to Sci-Fi Mode';
+                        document.getElementById('mode-icon').className = 'fa-solid fa-moon';
+                    }
+                },
+
+                toggleMode: function() {
+                    const html = document.documentElement;
+                    const icon = document.getElementById('mode-icon');
+                    const text = document.getElementById('mode-text');
+                    
+                    if(html.classList.contains('dark')) {
+                        html.classList.remove('dark');
+                        icon.className = 'fa-solid fa-moon';
+                        text.innerText = 'Switch to Sci-Fi Mode';
+                        localStorage.setItem('cs_mode', 'light');
+                    } else {
+                        html.classList.add('dark');
+                        icon.className = 'fa-solid fa-sun';
+                        text.innerText = 'Switch to Easy View';
+                        localStorage.setItem('cs_mode', 'dark');
+                    }
+                },
+
+                renderButtons: function() {
+                    document.getElementById('unit1-container').innerHTML = '';
+                    document.getElementById('unit2-container').innerHTML = '';
+                    document.getElementById('unit3-container').innerHTML = '';
+
+                    for (const [key, val] of Object.entries(Engine.db)) {
+                        const targetId = `unit${val.unit}-container`;
+                        const container = document.getElementById(targetId);
+                        
+                        if (!container) continue;
+
+                        const isDone = Engine.state.progress.includes(key);
+                        const checkClass = isDone ? 'block' : 'hidden';
+                        const divClass = isDone ? 'completed' : '';
+
+                        const html = `
+                            <div onclick="Engine.logic.openLesson('${key}')" id="btn-${key}" 
+                                 class="topic-btn ${divClass} p-4 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-between group bg-white dark:bg-white/5">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                                        <i class="fa-solid fa-book-open text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-slate-800 dark:text-white">${val.title}</h4>
+                                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">${val.time}</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-circle-check text-green-600 text-2xl check-icon ${checkClass}"></i>
+                                <i class="fa-solid fa-chevron-right text-slate-300 dark:text-slate-600 ${isDone ? 'hidden' : 'block'}"></i>
+                            </div>
+                        `;
+                        container.innerHTML += html;
+                    }
+                    this.updateProgress();
+                },
+
+                updateProgress: function() {
+                    const total = Object.keys(Engine.db).length;
+                    const pct = Math.round((Engine.state.progress.length / total) * 100);
+                    document.getElementById('nav-bar').style.width = pct + '%';
+                    document.getElementById('nav-pct').innerText = pct + '%';
+                },
+
+                openModal: function() { document.getElementById('lessonModal').classList.remove('hidden'); document.getElementById('lessonModal').classList.add('flex'); },
+                closeModal: function() { document.getElementById('lessonModal').classList.remove('flex'); document.getElementById('lessonModal').classList.add('hidden'); }
+            },
+
+            logic: {
+                loadState: function() {
+                    Engine.state = JSON.parse(localStorage.getItem('cs_final_v3') || '{"progress":[]}');
+                },
+                saveState: function() {
+                    localStorage.setItem('cs_final_v3', JSON.stringify(Engine.state));
+                },
+                openLesson: function(id) {
+                    if(!Engine.db[id]) return;
+                    Engine.currentId = id;
+                    document.getElementById('modal-title').innerText = Engine.db[id].title;
+                    document.getElementById('modal-time').innerText = Engine.db[id].time;
+                    document.getElementById('modal-content').innerHTML = Engine.db[id].body;
+                    Engine.ui.openModal();
+                },
+                complete: function() {
+                    if(!Engine.state.progress.includes(Engine.currentId)) {
+                        Engine.state.progress.push(Engine.currentId);
+                        Engine.logic.saveState();
+                        const btn = document.getElementById(`btn-${Engine.currentId}`);
+                        if(btn) {
+                            btn.classList.add('completed');
+                            btn.querySelector('.check-icon').classList.remove('hidden');
+                            btn.querySelector('.fa-chevron-right').classList.add('hidden');
+                        }
+                        Engine.ui.updateProgress();
+                    }
+                    Engine.ui.closeModal();
+                },
+                openQuiz: function() {
+                    if(Engine.state.progress.length < 17) return alert('Please complete all lessons first.');
+                    document.getElementById('cert-date').innerText = new Date().toLocaleDateString();
+                    document.getElementById('certOverlay').style.display = 'flex';
+                },
+                
+                checkPass: function(val) {
+                    const bar = document.getElementById('pass-bar');
+                    const txt = document.getElementById('pass-text');
+                    let score = 0;
+                    if(val.length > 5) score++;
+                    if(val.length > 10) score++;
+                    if(/[A-Z]/.test(val)) score++;
+                    if(/[0-9]/.test(val)) score++;
+                    if(/[^A-Za-z0-9]/.test(val)) score++;
+
+                    if(score < 2) { bar.style.width = '20%'; bar.className = 'strength-bar bg-red-500'; txt.innerText = 'Strength: Weak'; }
+                    else if(score < 4) { bar.style.width = '60%'; bar.className = 'strength-bar bg-yellow-500'; txt.innerText = 'Strength: Moderate'; }
+                    else { bar.style.width = '100%'; bar.className = 'strength-bar bg-green-500'; txt.innerText = 'Strength: Excellent'; }
+                },
+                
+                checkPhish: function(isReal) {
+                    const res = document.getElementById('phish-result');
+                    res.classList.remove('hidden');
+                    if(isReal) {
+                        res.innerText = 'Correct! security@amazon.com is real.';
+                        res.className = 'bg-green-100 text-green-700 p-4 rounded-xl mt-4 font-bold border border-green-300';
+                    } else {
+                        res.innerText = 'DANGER! Gmail addresses are fake.';
+                        res.className = 'bg-red-100 text-red-700 p-4 rounded-xl mt-4 font-bold border border-red-300';
+                    }
+                }
+            }
+        };
+
+        window.onload = () => Engine.ui.init();
+    </script>
+</body>
+</html>
